@@ -1,0 +1,31 @@
+May 3, 2018
+Backspatter Gunshot
+Designed by: D. Attinger, D van Ryswyk, Ricky Faflak, Yu Liu
+Performed by: D. Attinger, D van Ryswyk, Ricky Faflak
+
+Image Scale: 600 dpi (42.3 micrometer per pixel)
+
+Environmental conditions: 
+Room Temperature (in degree C): 18.0 +/- 2
+Relative Humidity (%): 70 +/-5
+
+Blood Properties: Swine blood with heparin anti-coagulant, hematocrit measured twice at 37% and 39%, drawn one day before the experiment
+Blood Temperature: Room temperature
+
+All coordinate measurements are taken from the bullet hole
+
+Blood source: foam board cavity filled with blood - 2 inch diameter x 5mm depth
+Blood source position: vertical, ~57cm from ground
+
+Target: Premium Poster board, Walmart UCreate, smooth side
+Target position: vertical
+Blood Volume (mL): 10+/-1 
+
+
+Gun: Smith and Wesson handgun 9mm 
+Bullet: AE9AP (round)
+
+muzzle gases: screened out, to minimize interaction with spatter
+
+Distance from target to blood source (cm): 120
+Distance from gun to blood source (cm): ~150
