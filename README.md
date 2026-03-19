@@ -1,5 +1,3 @@
-
-
 # 🛡️ AEGIS-FORENSIC: System Documentation
 
 ## 1. Project Overview
