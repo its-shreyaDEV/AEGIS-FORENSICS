@@ -7,7 +7,7 @@ import cv2
 import hashlib
 import os
 
-# Use relative paths pointing to the models folder
+#Directory Locations for models
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODEL_DIR = os.path.join(BASE_DIR, "models")
 
@@ -38,18 +38,18 @@ MODELS = {
     }
 }
 
-# THE FIX: Modern FastAPI lifespan manager instead of deprecated on_event
+#Modern FastAPI lifespan manager
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("Initializing Aegis-Forensics AI Core...")
+    print("Initializing Aegis-Forensics AI Core")
     for key, config in MODELS.items():
         try:
             MODELS[key]["model"] = tf.keras.models.load_model(config["path"])
-            print(f"[OK] Loaded {key.upper()} module into RAM.")
+            print(f"Loaded {key.upper()} module into RAM.")
         except Exception as e:
-            print(f"[WARNING] Could not load {key} module. Error: {e}")
+            print(f"Could not load {key} module. Error: {e}")
     yield
-    print("Shutting down AI Core. Releasing memory...")
+    print("Shutting down system")
 
 app = FastAPI(title="Aegis-Forensics AI Core", version="3.0", lifespan=lifespan)
 
@@ -61,6 +61,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+#Backend Prediction Model Handling
 @app.post("/analyze")
 async def analyze_evidence(file: UploadFile = File(...), module_type: str = Form(...)):
     if module_type not in MODELS:

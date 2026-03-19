@@ -1,8 +1,8 @@
 import os
 import shutil
 
-SOURCE_DIR = "./aegis_data/bloodstain"   # your current messy folder
-OUTPUT_DIR = "./aegis_data/bloodstain_dataset"
+SOURCE_DIR = "./aegis_data/bloodstain"  #Original Dataset that we use
+OUTPUT_DIR = "./aegis_data/bloodstain_dataset"  #Output dataset which will be used for model training
 
 BLOOD_DIR = os.path.join(OUTPUT_DIR, "blood")
 NON_BLOOD_DIR = os.path.join(OUTPUT_DIR, "non_blood")
@@ -13,9 +13,7 @@ os.makedirs(NON_BLOOD_DIR, exist_ok=True)
 # Allowed image formats
 VALID_EXT = (".jpg", ".jpeg", ".png")
 
-# =========================
-# HELPER FUNCTION
-# =========================
+#Helper Function to handle the images
 def copy_images(src_folder, dest_folder, limit=None):
     count = 0
     for root, _, files in os.walk(src_folder):
@@ -32,44 +30,28 @@ def copy_images(src_folder, dest_folder, limit=None):
                     continue
     return count
 
-# =========================
-# BLOOD DATA
-# =========================
-
-print("\n🔴 Processing BLOOD datasets...")
-
+#Blood data split
+print("\nProcessing BLOOD datasets...")
 # Blood cells (ALL go to blood)
 copy_images(os.path.join(SOURCE_DIR, "blood", "blood_cell"), BLOOD_DIR)
-
 # Malaria dataset (both are blood)
 copy_images(os.path.join(SOURCE_DIR, "blood", "malaria_blood"), BLOOD_DIR)
-
 # GI bleeding → ONLY Lesion folder
 copy_images(os.path.join(SOURCE_DIR, "blood", "gastrointestinal_bleeding", "Lesion"), BLOOD_DIR)
-
 # Wound dataset → train_images only
 copy_images(os.path.join(SOURCE_DIR, "blood", "wound", "data_wound_seg", "train_images"), BLOOD_DIR)
 
-# =========================
-# NON-BLOOD DATA
-# =========================
 
-print("\n🟢 Processing NON-BLOOD datasets...")
-
-# Animals
+#Non blood data split
+print("\nProcessing NON-BLOOD datasets...")
+# Animals, objects along with non-blood items
 copy_images(os.path.join(SOURCE_DIR, "non_blood", "animal_img"), NON_BLOOD_DIR)
-
 # Skin cancer dataset → use raw images (mostly non-blood)
 copy_images(os.path.join(SOURCE_DIR, "non_blood", "skin_cancer", "raw-img"), NON_BLOOD_DIR)
-
 # GI bleeding → NORMAL images = non-blood
 copy_images(os.path.join(SOURCE_DIR, "blood", "gastrointestinal_bleeding", "Normal"), NON_BLOOD_DIR)
 
-# =========================
-# FINAL COUNT
-# =========================
-
-print("\n🎯 DATASET BUILD COMPLETE")
-
+#Final Count to verify blood v/s non blood data split
+print("\nDATASET BUILD COMPLETE")
 print(f"Blood images: {len(os.listdir(BLOOD_DIR))}")
 print(f"Non-blood images: {len(os.listdir(NON_BLOOD_DIR))}")
