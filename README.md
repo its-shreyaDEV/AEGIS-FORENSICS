@@ -1,27 +1,28 @@
+
 ---
 
-# 🛡️ AEGIS-FORENSICS
+# AEGIS-FORENSICS
 
-### AI-Powered Digital Forensic Analysis Platform
+## AI-Powered Digital Forensic Analysis Platform
 
 **Aegis-Forensics** is a modular, full-stack forensic intelligence system designed to automate evidence classification using deep learning. It combines a **React + Vite frontend** with a **FastAPI backend**, powered by **transfer learning (EfficientNetB0)**.
 
 ---
 
-# 🚀 SYSTEM OVERVIEW
+# SYSTEM OVERVIEW
 
-- 🔍 Automated forensic evidence classification
-- ⚡ FastAPI backend for real-time inference
-- 🧠 Deep learning models (Keras / TensorFlow)
-- 🎨 Gamified, animated React frontend
-- 🔐 Evidence hashing (SHA-256 simulation)
-- 🧩 Modular and extensible architecture
+-  Automated forensic evidence classification
+-  FastAPI backend for real-time inference
+-  Deep learning models (Keras / TensorFlow)
+-  Gamified, animated React frontend
+-  Evidence hashing (SHA-256 simulation)
+-  Modular and extensible architecture
 
 ---
 
-# 🖥️ PART 1: BACKEND ARCHITECTURE (AI CORE)
+#  PART 1: BACKEND ARCHITECTURE (AI CORE)
 
-## 📁 Directory Structure
+##  Directory Structure
 
 ```bash
 AEGIS-FORENSIC/
@@ -41,7 +42,7 @@ AEGIS-FORENSIC/
 
 ---
 
-## ⚙️ Data Engineering Pipeline
+##  Data Engineering Pipeline
 
 ### 🔹 `build_dataset.py` (Master Pipeline)
 
@@ -61,9 +62,9 @@ AEGIS-FORENSIC/
 
 ---
 
-## 🧠 Model Architectures
+## Model Architectures
 
-### 🚗 Vehicle Damage Detection
+### Vehicle Damage Detection
 
 - Type: Binary Classification (Whole vs Damaged)
 - Strategy: Heavy augmentation
@@ -71,7 +72,7 @@ AEGIS-FORENSIC/
 
 ---
 
-### 🔬 Microscopic Toolmark Analysis
+### Microscopic Toolmark Analysis
 
 - Type: 6-Class Classification
 - Strategy: **50% Dropout** to prevent lighting bias
@@ -79,7 +80,7 @@ AEGIS-FORENSIC/
 
 ---
 
-### 🩸 Blood Detection
+### Blood Detection
 
 - Type: Binary Classification
 - Dataset: **100k+ hybrid dataset**
@@ -88,7 +89,7 @@ AEGIS-FORENSIC/
 
 ---
 
-### 🔫 Ballistics / Cartridge Analysis
+### Ballistics / Cartridge Analysis
 
 - Type: 3-Class Classification
 - Strategy: Two-phase fine-tuning (low LR)
@@ -96,7 +97,7 @@ AEGIS-FORENSIC/
 
 ---
 
-## 🎓 Model Evaluation (For Defense)
+## Model Evaluation (For Defense)
 
 ### ✔️ Precision (Trust Metric)
 
@@ -122,9 +123,9 @@ AEGIS-FORENSIC/
 
 ---
 
-# 🎨 PART 2: FRONTEND ARCHITECTURE (React + Vite)
+# PART 2: FRONTEND ARCHITECTURE (React + Vite)
 
-## ⚡ Quick Start
+## Quick Start
 
 ```bash
 npm install
@@ -134,7 +135,7 @@ npm run dev
 
 ---
 
-## 📁 Component Architecture
+## Component Architecture
 
 ```bash
 src/
@@ -151,9 +152,9 @@ src/
 
 ---
 
-## 🧩 Core Components
+## Core Components
 
-### 🧠 `App.jsx`
+### `App.jsx`
 
 - Root state manager
 - Stores:
@@ -163,28 +164,28 @@ src/
 
 ---
 
-### 🌌 HyperspeedBackground
+### HyperspeedBackground
 
 - Canvas-based animated grid
 - Particle streak effects
 
 ---
 
-### 🧭 TopNav
+### TopNav
 
 - Sticky navigation bar
 - Animated logo + signal bars
 
 ---
 
-### 📊 StatsBar
+### StatsBar
 
 - 4 key metrics
 - Count-up animation
 
 ---
 
-### 📤 AnimatedUploadZone
+### AnimatedUploadZone
 
 - Drag-and-drop UI
 - Electric border effects
@@ -192,21 +193,21 @@ src/
 
 ---
 
-### 🧾 TiltedEvidenceCard
+### TiltedEvidenceCard
 
 - 3D mouse tracking
 - Built using **Framer Motion springs**
 
 ---
 
-### 🔡 LetterGlitchHash
+### LetterGlitchHash
 
 - Glitch-style hash reveal
 - Character-by-character animation
 
 ---
 
-### 📊 ResultsPanel
+### ResultsPanel
 
 - Displays:
     - Evidence preview
@@ -216,7 +217,7 @@ src/
 
 ---
 
-## 📦 Key Packages
+## Key Packages
 
 | Package | Purpose |
 | --- | --- |
@@ -226,11 +227,11 @@ src/
 
 ---
 
-## 🎨 Advanced UI Techniques
+## Advanced UI Techniques
 
-- ✨ Noise grain overlay → SVG `feTurbulence`
-- 🌫️ Glass morphism → `backdrop-filter: blur(20px)`
-- 🎯 3D tilt effect → `rotateX`, `rotateY`, `perspective`
-- ⚡ Smooth physics animations → `useSpring`
+- Noise grain overlay → SVG `feTurbulence`
+- Glass morphism → `backdrop-filter: blur(20px)`
+- 3D tilt effect → `rotateX`, `rotateY`, `perspective`
+- Smooth physics animations → `useSpring`
 
 ---
