@@ -227,7 +227,7 @@ src/
 
 ---
 
-## Advanced UI Techniques
+## Advanced UI Techniques used
 
 - Noise grain overlay → SVG `feTurbulence`
 - Glass morphism → `backdrop-filter: blur(20px)`
