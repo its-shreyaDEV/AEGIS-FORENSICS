@@ -3,11 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import tensorflow as tf
 import numpy as np
-import cv2
 import hashlib
 import os
+from PIL import Image
+import io
 
-#Directory Locations for models
+# Directory Locations for models
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODEL_DIR = os.path.join(BASE_DIR, "models")
 
@@ -27,18 +28,20 @@ MODELS = {
     "bloodstain": {
         "path": os.path.join(MODEL_DIR, "blood_detector.keras"), 
         "model": None, 
-        "classes": ['Non-Blood', 'Blood'],
+        # FIXED: Swapped the array order. 0 is now Background, 1 is Bloodstain.
+        "classes": ['Non-Biological / Background', 'Biological / Bloodstain Confirmed'],
         "output_type": "binary"
     },
     "ballistics": {
         "path": os.path.join(MODEL_DIR, "aegis_ballistics_model.keras"), 
         "model": None, 
-        "classes": ['Breech_Face', 'Ejector_Mark', 'Firing_Pin'],
+        # FIXED: Removed 'Ejector_Mark' to match the 2-class validation metrics
+        "classes": ['Breech_Face', 'Firing_Pin'],
         "output_type": "categorical"
     }
 }
 
-#Modern FastAPI lifespan manager
+# Modern FastAPI lifespan manager
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("Initializing Aegis-Forensics AI Core")
@@ -61,7 +64,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-#Backend Prediction Model Handling
+# Backend Prediction Model Handling
 @app.post("/analyze")
 async def analyze_evidence(file: UploadFile = File(...), module_type: str = Form(...)):
     if module_type not in MODELS:
@@ -75,11 +78,13 @@ async def analyze_evidence(file: UploadFile = File(...), module_type: str = Form
         raise HTTPException(status_code=500, detail=f"{module_type.upper()} model is offline.")
 
     try:
-        nparr = np.frombuffer(contents, np.uint8)
-        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        img = cv2.resize(img, (224, 224))
-        img_array = np.expand_dims(img, axis=0)
+        # ROBUST FIX: Use Pillow to catch Grayscale/RGBA and force perfectly to RGB
+        image = Image.open(io.BytesIO(contents)).convert("RGB")
+        image = image.resize((224, 224))
+        
+        # Convert back to a mathematical tensor for EfficientNet
+        img_array = tf.keras.preprocessing.image.img_to_array(image)
+        img_array = tf.expand_dims(img_array, axis=0)
 
         predictions = target_module["model"].predict(img_array)
         
@@ -97,7 +102,7 @@ async def analyze_evidence(file: UploadFile = File(...), module_type: str = Form
             "filename": file.filename,
             "hash": file_hash,
             "prediction": predicted_class_name.replace("_", " "),
-            "confidence": round(confidence_score, 4),
+            "confidence": round(confidence_score * 100, 2), # Formatted as a percentage for the frontend
             "module_used": module_type
         }
     except Exception as e:

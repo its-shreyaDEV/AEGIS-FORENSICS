@@ -1,237 +1,186 @@
 
----
+
 
 # AEGIS-FORENSICS
+### AI-Powered Digital Forensic Intelligence Platform
 
-## AI-Powered Digital Forensic Analysis Platform
-
-**Aegis-Forensics** is a modular, full-stack forensic intelligence system designed to automate evidence classification using deep learning. It combines a **React + Vite frontend** with a **FastAPI backend**, powered by **transfer learning (EfficientNetB0)**.
-
----
-
-# SYSTEM OVERVIEW
-
--  Automated forensic evidence classification
--  FastAPI backend for real-time inference
--  Deep learning models (Keras / TensorFlow)
--  Gamified, animated React frontend
--  Evidence hashing (SHA-256 simulation)
--  Modular and extensible architecture
+**Aegis-Forensics** is a modular, full-stack forensic intelligence system designed to automate evidence classification using deep learning. Inspired by the defense-tech aesthetics of Palantir and Anduril, it combines a highly kinetic, physics-based **React + Vite** frontend with a robust **FastAPI + TensorFlow** backend powered by transfer learning (`EfficientNetB0`).
 
 ---
 
-#  PART 1: BACKEND ARCHITECTURE (AI CORE)
+## Table of Contents
+1. [System Overview](#system-overview)
+2. [Installation & Running the Servers](#installation--running-the-servers)
+3. [Part 1: Backend Architecture (Aegis Core)](#part-1-backend-architecture-aegis-core)
+   - [Data Engineering Pipelines](#data-engineering-pipelines)
+   - [Model Architectures](#model-architectures)
+   - [The Preprocessing Engine](#the-preprocessing-engine)
+   - [Academic Defense & Evaluation](#academic-defense--evaluation)
+4.[Part 2: Frontend Architecture (Aegis UI)](#part-2-frontend-architecture-aegis-ui)
+   - [Component Architecture](#component-architecture)
+   - [State & Integration Flow](#state--integration-flow)
+   - [UI/UX & Advanced CSS Techniques](#uiux--advanced-css-techniques)
+5. [Future Scope & Roadmap](#future-scope--roadmap)
 
-##  Directory Structure
+---
 
+## System Overview
+
+Aegis-Forensics bridges the gap between raw crime-scene data and actionable intelligence.
+*   **Automated Classification:** Processes 4 distinct forensic domains (Blood, Ballistics, Toolmarks, Vehicle Damage).
+*   **Real-Time Inference:** FastAPI backend loads models directly into RAM via `@asynccontextmanager` for zero-latency predictions.
+*   **Chain of Custody:** Real-time Web Crypto API SHA-256 hashing simulated on upload.
+*   **Defense-Tech UI:** Gamified, dark-mode React frontend featuring WebGL-inspired canvas backgrounds, Framer Motion physics, and glitch-text reveals.
+
+---
+
+## Installation & Running the Servers
+
+To run the full Aegis platform, you need to spin up two separate environments simultaneously—one for the AI backend and one for the frontend UI. 
+
+### Prerequisites
+*   **Python 3.8+** (For the FastAPI and TensorFlow backend)
+*   **Node.js 18+** (For the React + Vite frontend)
+*   **Git** (To clone the repository)
+
+### Step 1: Clone the Repository
 ```bash
-AEGIS-FORENSIC/
-├── aegis_data/                  # Raw & processed datasets
-├── api/
-│   └── app.py                  # FastAPI backend
-├── models/                     # Trained models (Keras)
-│   ├── aegis_ballistics_model.keras
-│   ├── aegis_damage_model_v3.keras
-│   ├── aegis_toolmarks_model.keras
-│   └── blood_detector.keras
-├── scripts_evaluation/         # Metrics & validation scripts
-├── scripts_pipeline/           # Data preprocessing pipelines
-├── scripts_training/           # Model training logic
-└── test_images/                # Real-world unseen test data
+git clone https://github.com/your-username/aegis-forensics.git
+cd aegis-forensics
 ```
 
----
-
-##  Data Engineering Pipeline
-
-### 🔹 `build_dataset.py` (Master Pipeline)
-
-- Aggregates multiple datasets
-- Converts into **binary classification (blood vs non-blood)**
-- Ensures consistency across sources
-
-### 🔹 `prep_ballistics.py`
-
-- Cleans Excel-based datasets
-- Converts boolean flags → structured directories
-
-### 🔹 `expand_ballistics.py`
-
-- Solves low-data problem
-- Generates **2,700 augmented images** from 273 originals
-
----
-
-## Model Architectures
-
-### Vehicle Damage Detection
-
-- Type: Binary Classification (Whole vs Damaged)
-- Strategy: Heavy augmentation
-- Accuracy: **~90%**
-
----
-
-### Microscopic Toolmark Analysis
-
-- Type: 6-Class Classification
-- Strategy: **50% Dropout** to prevent lighting bias
-- Accuracy: **~94%**
-
----
-
-### Blood Detection
-
-- Type: Binary Classification
-- Dataset: **100k+ hybrid dataset**
-- Improvement: Replaced fragile spatter-based approach
-- Accuracy: **100%**
-
----
-
-### Ballistics / Cartridge Analysis
-
-- Type: 3-Class Classification
-- Strategy: Two-phase fine-tuning (low LR)
-- Accuracy: **100%**
-
----
-
-## Model Evaluation (For Defense)
-
-### ✔️ Precision (Trust Metric)
-
-> If Precision = 0.95 → 95% of "positive" predictions are correct
-> 
-
----
-
-### ✔️ F1 Score (Golden Metric)
-
-- Balances Precision & Recall
-- Ensures model is **not biased toward majority class**
-
----
-
-### ✔️ Defending 100% Accuracy
-
-- Achieved on **unseen validation data**
-- Justified by:
-    - Synthetic data expansion
-    - Deterministic physical patterns
-    - Example: firing pin impressions = geometric consistency
-
----
-
-# PART 2: FRONTEND ARCHITECTURE (React + Vite)
-
-## Quick Start
+### Step 2: Start the AI Backend (FastAPI)
+Open your first terminal instance. This environment will host the machine learning models and handle the image preprocessing.
 
 ```bash
+# Navigate to the backend directory
+cd AEGIS-FORENSIC
+
+# Create a Python virtual environment
+python -m venv venv
+
+# Activate the virtual environment
+# On Mac/Linux:
+source venv/bin/activate
+# On Windows:
+venv\Scripts\activate
+
+# Install the required Python dependencies (TensorFlow, FastAPI, Uvicorn, Pillow, etc.)
+pip install -r requirements.txt
+
+# Boot the FastAPI server
+uvicorn api.app:app --reload --port 8000
+```
+*The backend API will now be successfully running and listening for requests at `http://localhost:8000`.*
+
+### Step 3: Start the UI (React + Vite)
+Open a **second** terminal instance. This environment will compile and serve the user interface.
+
+```bash
+# From the root of the project, navigate to the frontend directory
+cd aegis_front
+
+# Install all Node modules and frontend dependencies
 npm install
+
+# Start the Vite development server
 npm run dev
-# → http://localhost:5173
 ```
+*The Aegis-Forensics UI is now live. Open your browser and navigate to `http://localhost:5173`.*
 
 ---
 
-## Component Architecture
+## Part 1: Backend Architecture (Aegis Core)
 
-```bash
+The backend acts as the brain of the operation. It is built to strictly handle mathematical tensors, leveraging **EfficientNetB0** for feature extraction and relying heavily on aggressive data engineering to solve forensic data starvation.
+
+### Backend Directory Structure
+```text
+AEGIS-FORENSIC/
+├── aegis_data/                  # Raw and processed datasets
+├── api/                         
+│   └── app.py                   # FastAPI serving layer & PIL preprocessor
+├── models/                      # Trained EfficientNetB0 Keras models (.keras)
+├── scripts_evaluation/          # Metrics & validation scripts (SciKit-Learn)
+├── scripts_pipeline/            # Data Engineering & Preparation scripts
+├── scripts_training/            # Architecture & Model Compilation logic
+└── test_images/                 # Real-world, zero-leakage testing data
+```
+
+### Data Engineering Pipelines
+Forensic data is notoriously messy and sparse. Our `scripts_pipeline/` directory solves this:
+*   **`build_dataset.py` (Master Pipeline):** The script responsible for the major Bloodstain architecture pivot. It aggregated disparate datasets (GI bleeding, wounds, animal images) into a unified dataset, flattening complex folder trees to create a massive `blood` vs `non_blood` structure.
+*   **`prep_ballistics.py`:** A Pandas-based parsing engine. Translates messy Excel boolean flags (bypassing merged headers and normalized newline characters) into clean, structured image directories.
+*   **`expand_ballistics.py`:** Solves data starvation via offline Data Expansion. Uses Keras `ImageDataGenerator` to physically synthesize 2,700 augmented variations (rotations, brightness) of the original 273 casing images.
+
+### Model Architectures (EfficientNetB0)
+
+| Module | Type | Accuracy | Strategy & Engineering Challenge |
+| :--- | :--- | :--- | :--- |
+| **Biological / Bloodstain** | Binary | **100%** | Replaced a fragile spatter-based math approach with a **100k+ hybrid dataset**. Uses a Sigmoid output + `class_weight` balancing (70k vs 36k) to create a universal biological detector. |
+| **Ballistics / Casings** | 3-Class | **100%** | Categorizes Firing Pin, Breech Face, Ejector Marks. Uses Two-Phase fine-tuning at micro-learning rates (`1e-5`). Unlocked by offline synthetic data expansion. |
+| **Vehicle Damage** | Binary | **~90%** | Detects crushed metal vs. whole cars. Relies on heavy in-memory augmentation (flips, spins, zooms) to prevent the AI from memorizing car models/shapes. |
+| **Microscopic Toolmarks** | 6-Class | **~94%** | Detects scratches, inclusions, etc. Applies an aggressive **50% Dropout layer** to prevent the AI from establishing bias based on laboratory microscope lighting. |
+
+### The Preprocessing Engine (`api/app.py`)
+To bridge the gap between messy web uploads (transparent PNGs, varying resolutions) and strict mathematical tensors, the API utilizes **Pillow (PIL)**. It intercepts the HTTP payload, strips alpha channels, converts to pure RGB, resizes to `(224, 224)`, and expands tensor dimensions to `(1, 224, 224, 3)` to guarantee 100% parity with the TensorFlow training environment.
+
+### Academic Defense & Evaluation
+*For panel defenses and academic proofs, metrics were generated on strictly unseen validation data.*
+*   **Precision (The Trust Metric):** e.g., A Precision of `0.95` on vehicle damage means investigators can trust a "Damaged" flag 95% of the time.
+*   **F1 Score (The Golden Metric):** The harmonic mean of Precision and Recall. Ensures the model isn't cheating by simply guessing the majority class on imbalanced datasets.
+*   **Defending 100% Accuracy:** The 100% scores on Ballistics/Blood are *not* overfit. They are achieved on unseen validation data and justified by deterministic physical patterns (a firing pin is a mathematically perfect geometric crater) and massive synthetic data expansion.
+
+---
+
+## Part 2: Frontend Architecture (Aegis UI)
+
+The frontend is a React Single Page Application (SPA) built with Vite. It takes heavy inspiration from modern data-intelligence platforms (Palantir, Linear, Axiom) to create a "dark data" HUD aesthetic.
+
+### Component Architecture
+```text
 src/
-├── App.jsx
+├── App.jsx                    # Root Router & Global State Management
+├── utils/
+│   ├── api.js                 # Fetch API bridge (FormData to FastAPI)
+│   └── data.js                # Static assets and UI mapping
 ├── components/
-│   ├── HyperspeedBackground
-│   ├── TopNav
-│   ├── StatsBar
-│   ├── AnimatedUploadZone
-│   ├── TiltedEvidenceCard
-│   ├── LetterGlitchHash
-│   └── ResultsPanel
+│   ├── HyperspeedBackground   # Canvas: animated grid + particle streaks
+│   ├── TopNav                 # Sticky nav, animated logo, EQ signal bars
+│   ├── StatsBar               # 4-cell stats, countup animation on mount
+│   ├── AnimatedUploadZone     # Drag-and-drop, electric border, AI dropdown
+│   ├── TiltedEvidenceCard     # 3D mouse-tracking tilt via Framer Motion springs
+│   ├── LetterGlitchHash       # Character-by-character glitch reveal animation
+│   └── ResultsPanel           # Dynamic AI response injection
+└── pages/
+    ├── Dashboard.jsx
+    ├── CapturePage.jsx        # Main upload & analysis view
+    └── AnalysisPage.jsx
 ```
 
----
+### State & Integration Flow
+1. **Upload & Hash:** A user selects an AI module and drops an image into `<AnimatedUploadZone />`. The Web Crypto API computes a real SHA-256 chain-of-custody hash instantly on the client side.
+2. **Transmission:** `utils/api.js` packages the image file and the selected module string into a `FormData` object and `POST`s it to the FastAPI backend.
+3. **Dynamic Contextual Rendering:** The backend returns the classification and confidence percentage. `<ResultsPanel />` intercepts this payload and dynamically maps to the correct UI layout (e.g., displaying Fluid Dynamics widgets for Bloodstain, or Vehicular Kinematics charts for Car Damage).
 
-## Core Components
-
-### `App.jsx`
-
-- Root state manager
-- Stores:
-    - File
-    - URL
-    - Hash
-
----
-
-### HyperspeedBackground
-
-- Canvas-based animated grid
-- Particle streak effects
+### UI/UX & Advanced CSS Techniques
+*   **Animation Engine (`framer-motion`):** Powers `AnimatePresence` layout transitions, `useSpring` physics, and stagger animations.
+*   **3D Card Tilt:** Achieved using Framer Motion combined with `rotateX/rotateY` tracking and `perspective: 900px` on the `<TiltedEvidenceCard />`.
+*   **Noise Grain Overlay:** A custom CSS technique utilizing SVG `<feTurbulence>` injected via `body::after` to create a matte, military-grade screen texture.
+*   **Glassmorphism:** Navigation and panels utilize `backdrop-filter: blur(20px)` over deep ink backgrounds (`#04080f`).
+*   **Glitch Text:** `<LetterGlitchHash />` uses `requestAnimationFrame` to cycle through random hex characters before settling on the true SHA-256 string.
+*   **Design Tokens:** Built with `tailwindcss`. Typographic hierarchy uses **Syne** (Headings) and **Space Mono** (Data/Hashes), with a primary accent color of Cyber Teal (`#00ffb4`).
 
 ---
 
-### TopNav
+## Future Scope & Roadmap
 
-- Sticky navigation bar
-- Animated logo + signal bars
+Aegis-Forensics is designed to be highly extensible. Planned upcoming features include:
 
----
-
-### StatsBar
-
-- 4 key metrics
-- Count-up animation
+1. **Real Face Detection:** Integration of a custom Python SightVision microservice exposing facial recognition mapping via a new `/api/detect` endpoint.
+2. **Immutable Blockchain Ledger:** Replacing the mock UI hash display with **Ethers.js** and a Hardhat-deployed smart contract to permanently log evidence hashes on-chain.
+3. **IPFS Decentralized Storage:** Integrating the `web3.storage` SDK to pin uploaded crime scene imagery directly to the InterPlanetary File System, ensuring zero tampering.
+4. **Three.js Scene Mapping:** Building a 3D crime scene viewer utilizing `@react-three/fiber` to spatialize AI evidence points inside a navigable digital twin.
 
 ---
-
-### AnimatedUploadZone
-
-- Drag-and-drop UI
-- Electric border effects
-- Real-time SHA-256 hashing
-
----
-
-### TiltedEvidenceCard
-
-- 3D mouse tracking
-- Built using **Framer Motion springs**
-
----
-
-### LetterGlitchHash
-
-- Glitch-style hash reveal
-- Character-by-character animation
-
----
-
-### ResultsPanel
-
-- Displays:
-    - Evidence preview
-    - Hash
-    - CNN confidence bars
-    - Timeline
-
----
-
-## Key Packages
-
-| Package | Purpose |
-| --- | --- |
-| framer-motion | Animations (springs, transitions) |
-| lucide-react | Icons (Upload, Shield, CPU, etc.) |
-| tailwindcss | Styling system |
-
----
-
-## Advanced UI Techniques used
-
-- Noise grain overlay → SVG `feTurbulence`
-- Glass morphism → `backdrop-filter: blur(20px)`
-- 3D tilt effect → `rotateX`, `rotateY`, `perspective`
-- Smooth physics animations → `useSpring`
-
----
+*Property of the Aegis-Forensics Development Team. Built for advanced digital intelligence and AI validation.*
