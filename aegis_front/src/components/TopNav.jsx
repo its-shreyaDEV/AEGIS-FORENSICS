@@ -1,7 +1,17 @@
 import { motion } from 'framer-motion'
-import { Shield, Cpu, Radio } from 'lucide-react'
+import { Link, useLocation } from 'react-router-dom'
+import { Shield, Radio } from 'lucide-react'
+
+const NAV_LINKS = [
+  { label: 'DASHBOARD', to: '/' },
+  { label: 'CAPTURE',   to: '/capture' },
+  { label: 'EVIDENCE',  to: '/evidence' },
+  { label: 'ANALYSIS',  to: '/analysis' },
+]
 
 export default function TopNav() {
+  const { pathname } = useLocation()
+
   return (
     <motion.header
       initial={{ y: -60, opacity: 0 }}
@@ -9,74 +19,49 @@ export default function TopNav() {
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 h-14"
       style={{
-        background: 'rgba(4,8,15,0.85)',
+        background: 'rgba(4,8,15,0.88)',
         backdropFilter: 'blur(20px)',
-        borderBottom: '1px solid rgba(0,255,180,0.08)',
+        borderBottom: '1px solid rgba(0,255,180,0.07)',
       }}
     >
-      {/* Logo */}
-      <div className="flex items-center gap-3">
+      <Link to="/" className="flex items-center gap-3 no-underline" style={{ textDecoration: 'none' }}>
         <div className="relative">
-          <Shield size={20} className="text-teal" strokeWidth={1.5} />
-          <span
-            className="absolute inset-0 rounded-full animate-pulse-slow"
-            style={{ background: 'rgba(0,255,180,0.12)', filter: 'blur(6px)' }}
-          />
+          <Shield size={19} style={{ color: '#00ffb4' }} strokeWidth={1.5} />
         </div>
-        <span
-          className="font-display font-extrabold tracking-[0.2em] text-sm"
-          style={{ color: '#00ffb4' }}
-        >
-          AEGIS
-        </span>
-        <span className="text-white/20 font-display text-sm">·</span>
-        <span className="font-display font-bold tracking-[0.2em] text-sm text-white/60">
-          FORENSICS
-        </span>
-      </div>
+        <span className="font-display font-extrabold tracking-[0.2em] text-sm" style={{ color: '#00ffb4' }}>AEGIS</span>
+        <span className="font-display text-sm" style={{ color: 'rgba(255,255,255,0.2)' }}>·</span>
+        <span className="font-display font-bold tracking-[0.2em] text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>FORENSICS</span>
+      </Link>
 
-      {/* Nav links */}
       <nav className="hidden md:flex items-center gap-1">
-        {['DASHBOARD', 'CAPTURE', 'EVIDENCE', 'ANALYSIS'].map((item, i) => (
-          <motion.button
-            key={item}
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 + i * 0.05 }}
-            className="px-4 py-1.5 text-[10px] tracking-[2px] font-display font-semibold rounded-md transition-all duration-200"
-            style={{
-              color: i === 0 ? '#00ffb4' : 'rgba(255,255,255,0.35)',
-              background: i === 0 ? 'rgba(0,255,180,0.08)' : 'transparent',
-            }}
-            onMouseEnter={e => { if (i !== 0) { e.target.style.color = '#00ffb4'; e.target.style.background = 'rgba(0,255,180,0.05)' } }}
-            onMouseLeave={e => { if (i !== 0) { e.target.style.color = 'rgba(255,255,255,0.35)'; e.target.style.background = 'transparent' } }}
-          >
-            {item}
-          </motion.button>
-        ))}
+        {NAV_LINKS.map((link, i) => {
+          const isActive = pathname === link.to
+          return (
+            <motion.div key={link.to} initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + i * 0.05 }}>
+              <Link
+                to={link.to}
+                style={{
+                  display: 'block', padding: '6px 16px', borderRadius: 6,
+                  fontFamily: 'Space Mono, monospace', fontSize: 10, letterSpacing: '1.5px',
+                  color: isActive ? '#00ffb4' : 'rgba(255,255,255,0.35)',
+                  background: isActive ? 'rgba(0,255,180,0.08)' : 'transparent',
+                  textDecoration: 'none', transition: 'all 0.2s',
+                }}
+              >{link.label}</Link>
+            </motion.div>
+          )
+        })}
       </nav>
 
-      {/* Status */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="flex items-center gap-3"
-      >
-        <div className="flex items-center gap-2 text-[10px] tracking-[1.5px] font-mono-cus"
-          style={{ color: 'rgba(0,255,180,0.6)' }}>
-          <Radio size={11} className="text-teal" />
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="flex items-center gap-3">
+        <div className="flex items-center gap-2" style={{ fontFamily: 'Space Mono', fontSize: 10, letterSpacing: 1, color: 'rgba(0,255,180,0.6)' }}>
+          <Radio size={11} style={{ color: '#00ffb4' }} />
           <span>SYSTEM ONLINE</span>
         </div>
-        <div className="flex items-center gap-1.5">
-          {[0, 1, 2].map(i => (
-            <motion.span
-              key={i}
-              className="block w-1 rounded-full bg-teal-400"
-              style={{ background: '#00ffb4', height: 6 + i * 4 }}
-              animate={{ scaleY: [1, 1.5 + i * 0.3, 1] }}
-              transition={{ duration: 0.8, delay: i * 0.15, repeat: Infinity, ease: 'easeInOut' }}
-            />
+        <div className="flex items-center gap-0.5">
+          {[6, 10, 14].map((h, i) => (
+            <motion.span key={i} className="block w-0.5 rounded-full" style={{ background: '#00ffb4', height: h }}
+              animate={{ scaleY: [1, 1.4, 1] }} transition={{ duration: 0.8, delay: i * 0.15, repeat: Infinity, ease: 'easeInOut' }} />
           ))}
         </div>
       </motion.div>
