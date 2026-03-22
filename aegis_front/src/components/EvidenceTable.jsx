@@ -11,30 +11,36 @@ const STATUS_STYLE = {
 const FILTERS = ['ALL', 'VERIFIED', 'COMPROMISED', 'PENDING']
 
 export default function EvidenceTable({ data, onSelect }) {
-  const [filter,  setFilter]  = useState('ALL')
-  const [query,   setQuery]   = useState('')
-  const [sortKey, setSortKey] = useState('time')
-  const [sortDir, setSortDir] = useState('desc')
+  const [filter,   setFilter]   = useState('ALL')
+  const [query,    setQuery]    = useState('')
+  const [sortKey,  setSortKey]  = useState('time')
+  const [sortDir,  setSortDir]  = useState('desc')
   const [expanded, setExpanded] = useState(null)
 
   const filtered = useMemo(() => {
     let rows = [...data]
-    if (filter !== 'ALL') rows = rows.filter(r => r.status === filter.toLowerCase())
+
+    if (filter !== 'ALL') {
+      rows = rows.filter(r => (r.status || '').toLowerCase() === filter.toLowerCase())
+    }
+
     if (query) {
       const q = query.toLowerCase()
       rows = rows.filter(r =>
-        r.id.toLowerCase().includes(q) ||
-        r.officer.toLowerCase().includes(q) ||
-        r.hash.toLowerCase().includes(q) ||
-        r.gps.label.toLowerCase().includes(q)
+        (r.id      || '').toLowerCase().includes(q) ||
+        (r.officer || '').toLowerCase().includes(q) ||
+        (r.hash    || '').toLowerCase().includes(q) ||
+        (r.gps?.label || '').toLowerCase().includes(q)   // ✅ safe optional chain
       )
     }
+
     rows.sort((a, b) => {
       let av = a[sortKey], bv = b[sortKey]
-      if (sortKey === 'time') { av = new Date(av); bv = new Date(bv) }
-      if (sortKey === 'phase') { av = Number(av); bv = Number(bv) }
+      if (sortKey === 'time')  { av = new Date(av); bv = new Date(bv) }
+      if (sortKey === 'phase') { av = Number(av);   bv = Number(bv)   }
       return sortDir === 'asc' ? (av > bv ? 1 : -1) : (av < bv ? 1 : -1)
     })
+
     return rows
   }, [data, filter, query, sortKey, sortDir])
 
@@ -70,8 +76,10 @@ export default function EvidenceTable({ data, onSelect }) {
         </div>
 
         {/* Search */}
-        <div className="flex items-center gap-2 flex-1 min-w-40 rounded-lg px-3 py-2"
-          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+        <div
+          className="flex items-center gap-2 flex-1 min-w-40 rounded-lg px-3 py-2"
+          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+        >
           <Search size={11} style={{ color: 'rgba(255,255,255,0.25)', flexShrink: 0 }} />
           <input
             type="text"
@@ -101,12 +109,12 @@ export default function EvidenceTable({ data, onSelect }) {
           }}
         >
           {[
-            { label: 'CASE ID',  key: 'id' },
-            { label: 'OFFICER',  key: 'officer' },
-            { label: 'TIMESTAMP',key: 'time' },
-            { label: 'PHASE',    key: 'phase' },
-            { label: 'STATUS',   key: 'status' },
-            { label: 'WEAPON',   key: null },
+            { label: 'CASE ID',   key: 'id'      },
+            { label: 'OFFICER',   key: 'officer'  },
+            { label: 'TIMESTAMP', key: 'time'     },
+            { label: 'PHASE',     key: 'phase'    },
+            { label: 'STATUS',    key: 'status'   },
+            { label: 'WEAPON',    key: null       },
           ].map(col => (
             <button
               key={col.label}
@@ -124,13 +132,18 @@ export default function EvidenceTable({ data, onSelect }) {
         <div>
           <AnimatePresence>
             {filtered.length === 0 && (
-              <div className="py-12 text-center font-mono-cus text-[11px]" style={{ color: 'rgba(255,255,255,0.2)' }}>
+              <div
+                className="py-12 text-center font-mono-cus text-[11px]"
+                style={{ color: 'rgba(255,255,255,0.2)' }}
+              >
                 NO RECORDS MATCH FILTER
               </div>
             )}
+
             {filtered.map((row, i) => {
-              const st = STATUS_STYLE[row.status] || STATUS_STYLE.pending
+              const st    = STATUS_STYLE[row.status] || STATUS_STYLE.pending
               const isExp = expanded === row.id
+
               return (
                 <motion.div
                   key={row.id}
@@ -151,13 +164,17 @@ export default function EvidenceTable({ data, onSelect }) {
                     onMouseEnter={e => { if (!isExp) e.currentTarget.style.background = 'rgba(255,255,255,0.015)' }}
                     onMouseLeave={e => { if (!isExp) e.currentTarget.style.background = 'transparent' }}
                   >
-                    <span className="font-mono-cus text-[11px]" style={{ color: '#00ffb4' }}>{row.id}</span>
-                    <span className="font-display text-xs" style={{ color: 'rgba(255,255,255,0.65)' }}>{row.officer}</span>
+                    <span className="font-mono-cus text-[11px]" style={{ color: '#00ffb4' }}>
+                      {row.id || '—'}
+                    </span>
+                    <span className="font-display text-xs" style={{ color: 'rgba(255,255,255,0.65)' }}>
+                      {row.officer || '—'}
+                    </span>
                     <span className="font-mono-cus text-[10px]" style={{ color: 'rgba(255,255,255,0.3)' }}>
-                      {new Date(row.time).toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' })}
+                      {row.time ? new Date(row.time).toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' }) : '—'}
                     </span>
                     <span className="font-mono-cus text-[11px]" style={{ color: 'rgba(255,255,255,0.4)' }}>
-                      {row.phase}/3
+                      {row.phase != null ? `${row.phase}/3` : '—'}
                     </span>
                     <span>
                       <span
@@ -165,7 +182,7 @@ export default function EvidenceTable({ data, onSelect }) {
                         style={{ background: st.bg, border: `1px solid ${st.border}`, color: st.color }}
                       >
                         <span className="w-1 h-1 rounded-full" style={{ background: st.dot }} />
-                        {row.status.toUpperCase()}
+                        {(row.status || 'pending').toUpperCase()}
                       </span>
                     </span>
                     <span className="font-mono-cus text-[10px]" style={{ color: 'rgba(255,255,255,0.35)' }}>
@@ -183,23 +200,34 @@ export default function EvidenceTable({ data, onSelect }) {
                         transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
                         style={{ overflow: 'hidden', borderBottom: '1px solid rgba(0,255,180,0.08)' }}
                       >
-                        <div className="px-6 py-4 grid gap-3" style={{ gridTemplateColumns: 'repeat(4, 1fr)', background: 'rgba(0,255,180,0.02)' }}>
+                        <div
+                          className="px-6 py-4 grid gap-3"
+                          style={{ gridTemplateColumns: 'repeat(4, 1fr)', background: 'rgba(0,255,180,0.02)' }}
+                        >
                           {[
-                            ['GPS',          row.gps.label],
-                            ['BADGE',        row.badge],
-                            ['SHA-256',      row.hash.slice(0, 20) + '…'],
-                            ['BLOCK TX',     row.blockTx || 'NOT SEALED'],
-                            ['IPFS CID',     row.ipfsCid || 'NOT UPLOADED'],
-                            ['BODY MOVED',   row.bodyMoved ? 'YES ⚠' : 'NO'],
+                            ['GPS',          row.gps?.label              || 'N/A'],          // ✅ safe
+                            ['BADGE',        row.badge                   || '—'],
+                            ['SHA-256',      (row.hash || '').slice(0, 20) + (row.hash ? '…' : '—')], // ✅ safe
+                            ['BLOCK TX',     row.blockTx                 || 'NOT SEALED'],
+                            ['IPFS CID',     row.ipfsCid                 || 'NOT UPLOADED'],
+                            ['BODY MOVED',   row.bodyMoved ? 'YES ⚠'    : 'NO'],
                             ['WEAPON CONF.', row.weaponMatch?.confidence ? `${row.weaponMatch.confidence}%` : '—'],
-                            ['SCENE',        row.primaryScene?.label || 'CURRENT LOCATION'],
+                            ['SCENE',        row.primaryScene?.label     || 'CURRENT LOCATION'],
                           ].map(([k, v]) => (
                             <div key={k}>
-                              <p className="font-mono-cus text-[8px] tracking-[2px] mb-0.5" style={{ color: 'rgba(0,255,180,0.35)' }}>{k}</p>
-                              <p className="font-mono-cus text-[10px]" style={{ color: v.includes('⚠') ? '#f59e0b' : 'rgba(255,255,255,0.55)' }}>{v}</p>
+                              <p className="font-mono-cus text-[8px] tracking-[2px] mb-0.5" style={{ color: 'rgba(0,255,180,0.35)' }}>
+                                {k}
+                              </p>
+                              <p
+                                className="font-mono-cus text-[10px]"
+                                style={{ color: String(v).includes('⚠') ? '#f59e0b' : 'rgba(255,255,255,0.55)' }}
+                              >
+                                {v}
+                              </p>
                             </div>
                           ))}
                         </div>
+
                         <div className="px-6 pb-4 flex gap-2" style={{ background: 'rgba(0,255,180,0.02)' }}>
                           <button
                             onClick={() => onSelect?.(row)}

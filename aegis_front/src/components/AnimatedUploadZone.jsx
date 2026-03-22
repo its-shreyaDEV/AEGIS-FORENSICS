@@ -1,15 +1,23 @@
 import { useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { UploadCloud, FileImage, AlertCircle, Crosshair } from 'lucide-react'
-import { analyzeEvidenceAtBackend } from '../utils/api' // <-- IMPORTING YOUR API BRIDGE
 
 const ACCEPTED = ['image/jpeg', 'image/png', 'image/webp', 'image/tiff']
+
+// Local hash generator for immediate UI feedback before backend transmission
+async function computeLocalHash(file) {
+  const buffer = await file.arrayBuffer()
+  const digest = await crypto.subtle.digest('SHA-256', buffer)
+  return Array.from(new Uint8Array(digest))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('')
+}
 
 export default function AnimatedUploadZone({ onFile }) {
   const [isDragActive, setDragActive]   = useState(false)
   const [isDragReject, setDragReject]   = useState(false)
   const [isProcessing, setProcessing]   = useState(false)
-  const [moduleType, setModuleType]     = useState('bloodstain') // <-- ADDED MODULE SELECTOR STATE
+  const [moduleType, setModuleType]     = useState('bloodstain')
 
   const handleDrag = useCallback((e) => {
     e.preventDefault()
@@ -25,39 +33,33 @@ export default function AnimatedUploadZone({ onFile }) {
     }
   }, [])
 
-  // --- THIS IS WHERE THE MAGIC HAPPENS ---
   const processFile = useCallback(async (file) => {
     if (!file || !ACCEPTED.includes(file.type)) return
     setProcessing(true)
     
     try {
-      // 1. Frontend visual prep
+      // 1. Generate local preview URL
       const url = URL.createObjectURL(file)
       
-      // 2. Call your FastAPI Backend!
-      console.log(`Sending to Aegis Core: ${moduleType}...`);
-      const aiResults = await analyzeEvidenceAtBackend(file, moduleType);
-      console.log("Aegis Core Response:", aiResults);
+      // 2. Generate initial cryptographic hash for the UI
+      const localHash = await computeLocalHash(file)
 
-      // 3. Send the real AI data up to your React state
+      // 3. Pass data UP to CapturePage (CapturePage handles the API call now)
       onFile({ 
         file, 
         url, 
-        hash: aiResults.hash, // Using the backend's official chain-of-custody hash
+        hash: localHash, 
         name: file.name, 
         size: file.size,
-        prediction: aiResults.prediction,
-        confidence: aiResults.confidence,
-        module_used: aiResults.module_used
+        moduleType: moduleType // Pass the selected AI module up
       })
     } catch (error) {
-      console.error("Backend processing failed:", error);
-      alert("Aegis Core Offline or Processing Error: " + error.message);
+      console.error("Local processing failed:", error);
+      alert("Failed to read file.");
     } finally {
       setProcessing(false)
     }
   }, [onFile, moduleType])
-  // ---------------------------------------
 
   const handleDrop = useCallback((e) => {
     e.preventDefault()
@@ -87,25 +89,25 @@ export default function AnimatedUploadZone({ onFile }) {
   return (
     <div className="flex flex-col gap-4">
       
-      {/* --- ADDED: MODULE SELECTOR DROPDOWN --- */}
+      {/* MODULE SELECTOR DROPDOWN */}
       <div className="flex items-center justify-between bg-ink-950/50 p-3 rounded-lg border border-[rgba(0,255,180,0.2)]">
         <div className="flex items-center gap-2">
-          <Crosshair size={18} className="text-teal-400" />
-          <span className="font-mono-cus text-xs tracking-widest text-teal-400/80">TARGET AI MODULE:</span>
+          <Crosshair size={18} className="text-[#00ffb4]" />
+          <span className="font-mono-cus text-xs tracking-widest text-[#00ffb4]/80">TARGET AI MODULE:</span>
         </div>
         <select 
           value={moduleType} 
           onChange={(e) => setModuleType(e.target.value)}
           disabled={isProcessing}
-          className="bg-transparent text-white font-mono-cus text-sm outline-none border-b border-teal-400/30 pb-1 cursor-pointer focus:border-teal-400"
+          className="bg-transparent text-white font-mono-cus text-sm outline-none border-b border-[#00ffb4]/30 pb-1 cursor-pointer focus:border-[#00ffb4]"
         >
-          <option value="bloodstain" className="bg-ink-950 text-white">Biological / Bloodstain</option>
-          <option value="ballistics" className="bg-ink-950 text-white">Ballistics & Casings</option>
-          <option value="damage" className="bg-ink-950 text-white">Vehicle Damage</option>
-          <option value="toolmarks" className="bg-ink-950 text-white">Microscopic Toolmarks</option>
+          <option value="bloodstain" className="bg-[#04080f] text-white">Biological / Bloodstain</option>
+          <option value="ballistics" className="bg-[#04080f] text-white">Ballistics & Casings</option>
+          <option value="damage" className="bg-[#04080f] text-white">Vehicle Damage</option>
+          <option value="toolmarks" className="bg-[#04080f] text-white">Microscopic Toolmarks</option>
+          <option value="facial_recognition" className="bg-[#04080f] text-white">Facial Recognition (DeepFace)</option>
         </select>
       </div>
-      {/* -------------------------------------- */}
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -205,7 +207,7 @@ export default function AnimatedUploadZone({ onFile }) {
                   className="font-mono-cus text-xs tracking-widest"
                   style={{ color: '#00ffb4' }}
                 >
-                  AEGIS CORE INFERENCE ACTIVE...
+                  PREPARING EVIDENCE ENCRYPTION...
                 </motion.p>
               ) : isDragReject ? (
                 <motion.p key="rej"

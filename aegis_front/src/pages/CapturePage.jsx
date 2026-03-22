@@ -1,12 +1,15 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import AnimatedUploadZone   from '../components/AnimatedUploadZone'
 import BlockchainVisualizer from '../components/BlockchainVisualizer'
 import LetterGlitchHash     from '../components/LetterGlitchHash'
 import TiltedEvidenceCard   from '../components/TiltedEvidenceCard'
 import { useEvidenceStore } from '../hooks/useEvidenceStore'
-import { CheckCircle2, MapPin, Clock, User, FileDigit } from 'lucide-react'
+import { CheckCircle2, MapPin, User, FileDigit } from 'lucide-react'
+import { analyzeEvidenceAtBackend } from '../utils/api'
 
+// Helper component for metadata display
 function Field({ label, value, mono = false, dim = false }) {
   return (
     <div>
@@ -19,26 +22,116 @@ function Field({ label, value, mono = false, dim = false }) {
   )
 }
 
+// Utility to grab dynamic browser and device metadata
+const captureBrowserMetadata = () => {
+  return new Promise((resolve) => {
+    const metadata = {
+      timestamp: new Date().toISOString().replace('T', ' ').slice(0, 19) + ' UTC',
+      deviceType: /Mobile|Android|iP(ad|hone)/.test(navigator.userAgent) ? 'Mobile Device' : 'Desktop Workstation',
+      location: 'Locating...'
+    };
+
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          metadata.location = `${position.coords.latitude.toFixed(4)}°N, ${position.coords.longitude.toFixed(4)}°E`;
+          resolve(metadata);
+        },
+        () => {
+          metadata.location = 'Location Access Denied';
+          resolve(metadata);
+        },
+        { timeout: 5000 }
+      );
+    } else {
+      metadata.location = 'GPS Unavailable';
+      resolve(metadata);
+    }
+  });
+};
+
 export default function CapturePage() {
   const [evidence,  setEvidence]  = useState(null)
   const [officer,   setOfficer]   = useState('')
   const [badge,     setBadge]     = useState('')
   const [caseNum,   setCaseNum]   = useState('')
   const [sealed,    setSealed]    = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
+  
+  // Real-time metadata state for the UI panel
+  const [metaInfo, setMetaInfo] = useState({ 
+    timestamp: new Date().toISOString().replace('T', ' ').slice(0, 19) + ' UTC', 
+    location: 'Awaiting Capture...', 
+    deviceType: 'Scanning...' 
+  })
+
   const { add } = useEvidenceStore()
+  const navigate = useNavigate()
 
-  const handleFile = (ev) => {
-    setEvidence(ev)
+  const handleFile = async (uploadData) => {
+    // 1. Immediately update UI with the local file preview
+    setEvidence(uploadData)
     setSealed(false)
+    
+    // 2. Fetch local metadata for the right-hand panel
+    const browserMeta = await captureBrowserMetadata()
+    setMetaInfo(browserMeta)
   }
 
-  const handleSeal = () => {
+  const handleSeal = async () => {
     if (!evidence) return
-    add({ officer: officer || 'Unknown', badge, gps: { lat: 20.2961, lng: 85.8245, label: '20.2961°N, 85.8245°E' }, hash: evidence.hash })
-    setSealed(true)
-  }
+    if (!officer || !badge || !caseNum) {
+      alert("CRITICAL: All Officer Details (Name, Badge, Case #) must be filled before sealing evidence.");
+      return;
+    }
 
-  const now = new Date().toISOString().replace('T', ' ').slice(0, 19) + ' UTC'
+    setIsProcessing(true);
+    setSealed(true);
+
+    try {
+      // 1. Log to local store (your existing logic)
+      add({ 
+        officer: officer, 
+        badge: badge, 
+        case: caseNum,
+        gps: { label: metaInfo.location }, 
+        hash: evidence.hash 
+      })
+
+      // 2. Transmit to Aegis Core Backend via the API bridge
+      const aiResults = await analyzeEvidenceAtBackend(
+        evidence.file, 
+        evidence.moduleType, // Ensure AnimatedUploadZone passes this
+        `${officer} (${badge})`
+      );
+
+      // 3. Compile the final immutable payload
+      const finalizedEvidence = {
+        ...evidence, 
+        officer,
+        badge,
+        caseNum,
+        browserMetadata: metaInfo,
+        exifMetadata: aiResults.metadata, // Hidden GPS/Time extracted by Python
+        prediction: aiResults.prediction,
+        confidence: aiResults.confidence,
+        module_used: aiResults.module_used,
+        bounding_box: aiResults.bounding_box || null
+      };
+
+      // 4. Artificial delay to let the Blockchain visualizer play before routing
+      setTimeout(() => {
+        navigate('/analysis', { state: { evidence: finalizedEvidence } });
+      }, 3500);
+
+    } catch (error) {
+      console.error("Pipeline Error:", error);
+      alert(error.message);
+      setSealed(false);
+    } finally {
+      setIsProcessing(false);
+    }
+  }
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-8">
@@ -57,11 +150,14 @@ export default function CapturePage() {
         {/* Left — upload + result */}
         <div className="flex flex-col gap-5">
           {!evidence ? (
-            <AnimatedUploadZone onFile={handleFile} />
+            <div className={isProcessing ? "opacity-50 pointer-events-none" : ""}>
+               <AnimatedUploadZone onFile={handleFile} />
+            </div>
           ) : (
             <>
               <TiltedEvidenceCard evidence={evidence} />
               <LetterGlitchHash hash={evidence.hash} />
+              
               {!sealed ? (
                 <motion.button
                   whileHover={{ scale: 1.02 }}
@@ -70,7 +166,7 @@ export default function CapturePage() {
                   className="w-full py-4 rounded-xl font-display font-bold text-sm tracking-widest transition-all"
                   style={{ background: '#00ffb4', color: '#04080f', letterSpacing: '2px' }}
                 >
-                  ◎  SEAL ON BLOCKCHAIN
+                  ◎  SEAL & TRANSMIT TO AEGIS CORE
                 </motion.button>
               ) : (
                 <motion.div
@@ -78,16 +174,23 @@ export default function CapturePage() {
                   className="w-full py-4 rounded-xl flex items-center justify-center gap-3 font-mono-cus text-[11px] tracking-widest"
                   style={{ background: 'rgba(0,255,180,0.08)', border: '1px solid rgba(0,255,180,0.25)', color: '#00ffb4' }}
                 >
-                  <CheckCircle2 size={14} /> EVIDENCE SEALED · CHAIN OF CUSTODY ACTIVE
+                  {isProcessing ? (
+                    <span className="animate-pulse">TRANSMITTING SECURE PAYLOAD...</span>
+                  ) : (
+                    <><CheckCircle2 size={14} /> EVIDENCE SEALED · ROUTING TO ANALYSIS</>
+                  )}
                 </motion.div>
               )}
-              <button
-                onClick={() => { setEvidence(null); setSealed(false) }}
-                className="font-mono-cus text-[10px] tracking-widest text-center"
-                style={{ color: 'rgba(255,255,255,0.25)' }}
-              >
-                CAPTURE NEW EVIDENCE →
-              </button>
+              
+              {!sealed && (
+                <button
+                  onClick={() => { setEvidence(null); setSealed(false) }}
+                  className="font-mono-cus text-[10px] tracking-widest text-center mt-2"
+                  style={{ color: 'rgba(255,255,255,0.25)' }}
+                >
+                  CAPTURE NEW EVIDENCE →
+                </button>
+              )}
             </>
           )}
         </div>
@@ -110,7 +213,8 @@ export default function CapturePage() {
                   <p className="font-mono-cus text-[9px] tracking-[2px] mb-1" style={{ color: 'rgba(0,255,180,0.3)' }}>{f.label}</p>
                   <input
                     value={f.val} onChange={e => f.set(e.target.value)} placeholder={f.ph}
-                    className="w-full rounded-lg px-3 py-2 font-mono-cus text-xs outline-none transition-all"
+                    disabled={sealed}
+                    className="w-full rounded-lg px-3 py-2 font-mono-cus text-xs outline-none transition-all disabled:opacity-50"
                     style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.7)' }}
                     onFocus={e => e.target.style.borderColor = 'rgba(0,255,180,0.3)'}
                     onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.07)'}
@@ -127,10 +231,9 @@ export default function CapturePage() {
               <p className="font-mono-cus text-[10px] tracking-[2px]" style={{ color: 'rgba(0,255,180,0.45)' }}>AUTO-CAPTURED METADATA</p>
             </div>
             <div className="flex flex-col gap-3">
-              <Field label="GPS COORDINATES" value="20.2961°N, 85.8245°E" mono />
-              <Field label="TIMESTAMP" value={now} mono />
-              <Field label="DEVICE" value="AEGIS-CAM-07 · Unit Active" />
-              <Field label="FACE DETECTION" value="1 face detected · Score 98.4%" />
+              <Field label="GPS COORDINATES" value={metaInfo.location} mono />
+              <Field label="TIMESTAMP (UTC)" value={metaInfo.timestamp} mono />
+              <Field label="DEVICE" value={`AEGIS NODE · ${metaInfo.deviceType}`} />
             </div>
           </div>
 

@@ -7,6 +7,7 @@ const NAV_LINKS = [
   { label: 'CAPTURE',   to: '/capture' },
   { label: 'EVIDENCE',  to: '/evidence' },
   { label: 'ANALYSIS',  to: '/analysis' },
+  { label: 'VERIFY',    to: '/verify' },
 ]
 
 export default function TopNav() {

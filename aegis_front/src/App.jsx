@@ -6,6 +6,7 @@ import Dashboard    from './pages/Dashboard'
 import CapturePage  from './pages/CapturePage'
 import EvidencePage from './pages/EvidencePage'
 import AnalysisPage from './pages/AnalysisPage'
+import VerifyPage   from './pages/VerifyPage'
 
 function AnimatedRoutes() {
   const location = useLocation()
@@ -16,6 +17,7 @@ function AnimatedRoutes() {
         <Route path="/capture"  element={<CapturePage />}  />
         <Route path="/evidence" element={<EvidencePage />} />
         <Route path="/analysis" element={<AnalysisPage />} />
+        <Route path="/verify"   element={<VerifyPage />}   />
         <Route path="*"         element={<NotFound />}     />
       </Routes>
     </AnimatePresence>
