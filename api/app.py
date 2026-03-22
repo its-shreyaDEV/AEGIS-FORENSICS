@@ -33,8 +33,9 @@ MODELS = {
 }
 
 # ── DB ─────────────────────────────────────────────────────────────
+DB_PATH = os.path.join(BASE_DIR, "ledger.db")
 def get_db():
-    conn = sqlite3.connect("ledger.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
