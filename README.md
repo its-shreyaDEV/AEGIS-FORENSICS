@@ -8,7 +8,7 @@
 ![AI](https://img.shields.io/badge/AI-EfficientNetB0%20%2B%20FaceNet-ff4d4d?style=for-the-badge&labelColor=04080f)
 ![License](https://img.shields.io/badge/license-Academic-f59e0b?style=for-the-badge&labelColor=04080f)
 
-**A high-integrity, full-stack forensic intelligence platform that automates evidence classification, suspect identification, and cryptographic chain-of-custody sealing.**
+**A high-integrity, full-stack forensic intelligence platform that automates evidence classification, suspect identification with cryptographic chain-of-custody sealing.**
 
 *Inspired by the defense-tech aesthetics of Palantir, Anduril, and Axiom.*
 
