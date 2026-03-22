@@ -15,7 +15,7 @@
    - [Data Engineering Pipelines](#data-engineering-pipelines)
    - [Model Architectures](#model-architectures)
    - [The Preprocessing Engine](#the-preprocessing-engine)
-   - [Academic Defense & Evaluation](#academic-defense--evaluation)
+   - [Academic Defense & Evaluation](#academic-defense--evaluation)/n                             
 4.[Part 2: Frontend Architecture (Aegis UI)](#part-2-frontend-architecture-aegis-ui)
    - [Component Architecture](#component-architecture)
    - [State & Integration Flow](#state--integration-flow)
