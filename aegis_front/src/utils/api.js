@@ -1,5 +1,5 @@
 // src/utils/api.js
-const BACKEND_URL = "http://127.0.0.1:8000";
+const BACKEND_URL = "http://127.0.0.1:10000";
 
 // ── Core forensic analysis ────────────────────────────────────────
 export const analyzeEvidenceAtBackend = async (file, moduleType, officerName = "Unknown Officer", caseNum = "CAS-UNKNOWN") => {
