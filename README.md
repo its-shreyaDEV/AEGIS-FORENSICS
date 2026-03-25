@@ -1,5 +1,5 @@
 # AEGIS-FORENSICS
-### *Automated Evidence Guard & Identification System*
+### * AI-Powered Evidence Guard & Identification System *
 
 <div align="center">
 
